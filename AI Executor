@@ -1,0 +1,110 @@
+-- Flag to check if the GUI should be recreated
+local guiClosed = false
+
+-- Function to create the GUI
+local function createGUI()
+    if guiClosed then return end
+
+    -- Create the ScreenGui
+    local screenGui = Instance.new("ScreenGui")
+    screenGui.Name = "AI Executor"
+    screenGui.Parent = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
+
+    -- Create the Frame
+    local frame = Instance.new("Frame")
+    frame.Size = UDim2.new(0.7, 0, 0.7, 0) -- Slightly larger size
+    frame.Position = UDim2.new(0.15, 0, 0.15, 0)
+    frame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    frame.Parent = screenGui
+
+    -- Make the Frame draggable
+    frame.Active = true
+    frame.Draggable = true
+
+    -- Create the Close Button
+    local closeButton = Instance.new("TextButton")
+    closeButton.Size = UDim2.new(0, 30, 0, 30)
+    closeButton.Position = UDim2.new(1, -35, 0, 5)
+    closeButton.Text = "X"
+    closeButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0) -- Red color
+    closeButton.TextColor3 = Color3.fromRGB(255, 255, 255) -- White text
+    closeButton.Parent = frame
+
+    -- Function to close the GUI
+    closeButton.MouseButton1Click:Connect(function()
+        guiClosed = true
+        screenGui:Destroy()
+    end)
+
+    -- Create the ScrollingFrame for the TextBox
+    local scrollingFrame = Instance.new("ScrollingFrame")
+    scrollingFrame.Size = UDim2.new(0.9, 0, 0.75, 0) -- Increased size
+    scrollingFrame.Position = UDim2.new(0.05, 0, 0.15, 0)
+    scrollingFrame.CanvasSize = UDim2.new(0, 0, 10, 0) -- Adjust the CanvasSize as needed
+    scrollingFrame.ScrollBarThickness = 10
+    scrollingFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    scrollingFrame.Parent = frame
+
+    -- Create the TextBox
+    local textBox = Instance.new("TextBox")
+    textBox.Size = UDim2.new(1, -10, 1, -10)
+    textBox.Position = UDim2.new(0, 5, 0, 5)
+    textBox.Text = ""
+    textBox.TextWrapped = true
+    textBox.TextSize = 18 -- Set a smaller text size
+    textBox.TextYAlignment = Enum.TextYAlignment.Top -- Align text to the top
+    textBox.TextXAlignment = Enum.TextXAlignment.Left -- Align text to the left
+    textBox.MultiLine = true -- Allow multiple lines
+    textBox.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    textBox.Parent = scrollingFrame
+
+    -- Create the TextLabel for the name
+    local nameLabel = Instance.new("TextLabel")
+    nameLabel.Size = UDim2.new(0.9, 0, 0.1, 0)
+    nameLabel.Position = UDim2.new(0.05, 0, 0.05, 0)
+    nameLabel.Text = "AI Executor"
+    nameLabel.TextScaled = true
+    nameLabel.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    nameLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    nameLabel.Parent = frame
+
+    -- Create the Execute Button
+    local executeButton = Instance.new("TextButton")
+    executeButton.Size = UDim2.new(0.4, 0, 0.15, 0)
+    executeButton.Position = UDim2.new(0.05, 0, 0.85, 0)
+    executeButton.Text = "Execute"
+    executeButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0) -- Green color
+    executeButton.Parent = frame
+
+    -- Create the Clear Button
+    local clearButton = Instance.new("TextButton")
+    clearButton.Size = UDim2.new(0.4, 0, 0.15, 0)
+    clearButton.Position = UDim2.new(0.55, 0, 0.85, 0)
+    clearButton.Text = "Clear"
+    clearButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0) -- Red color
+    clearButton.Parent = frame
+
+    -- Function to execute the script
+    executeButton.MouseButton1Click:Connect(function()
+        local scriptSource = textBox.Text
+        local success, errorMessage = pcall(function()
+            loadstring(scriptSource)()
+        end)
+        if not success then
+            warn("Error executing script: " .. errorMessage)
+        end
+    end)
+
+    -- Function to clear the TextBox
+    clearButton.MouseButton1Click:Connect(function()
+        textBox.Text = ""
+    end)
+end
+
+-- Create the GUI initially
+createGUI()
+
+-- Ensure the GUI is recreated when the player respawns
+game:GetService("Players").LocalPlayer.CharacterAdded:Connect(function()
+    createGUI()
+end)
